@@ -1,9 +1,17 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import BugList from './pages/BugListPage';
+import BugDetail from './pages/BugDetailPage';
+import Login from './pages/LoginPage'; 
 
 function App() {
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold">BugBase Frontend</h1>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<BugList />} />
+        <Route path="/bugs/:id" element={<BugDetail />} />
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </Router>
   );
 }
 
