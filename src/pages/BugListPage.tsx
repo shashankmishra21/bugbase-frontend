@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchBugs, deleteBug } from '../api/bugService';
+import CommentSection from '../components/CommentSection';
+import axios from 'axios';
 
 interface Bug {
   id: number;
@@ -17,6 +19,7 @@ const BugList: React.FC = () => {
   const [userId, setUserId] = useState<number | null>(null);
   const [isSuperUser, setIsSuperUser] = useState(false);
   const [username, setUsername] = useState('');
+  const [openCommentId, setOpenCommentId] = useState<number | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,7 +33,6 @@ const BugList: React.FC = () => {
 
     fetchBugs()
       .then((res) => {
-        console.log("Fetched bugs:", res.data);
         setBugs(res.data);
       })
       .catch((err) => {
@@ -56,11 +58,47 @@ const BugList: React.FC = () => {
     }
   };
 
+  const handleExportCSV = async () => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert("No token found. Please login again.");
+    return;
+  }
+
+  try {
+    const response = await axios.get('http://127.0.0.1:8000/api/export-bugs/', {
+      headers: {
+        Authorization: `Token ${token}`,
+      },
+      responseType: 'blob', // <- important for downloading files!
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'bugs.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  } catch (err) {
+    console.error("❌ Export failed:", err);
+    alert("Failed to export CSV. Check if you're a superuser.");
+  }
+};
+
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
         <h1 className="text-xl font-semibold">👋 Welcome, {username || 'User'}</h1>
-        <div className="flex gap-4">
+        <div className="flex gap-4 flex-wrap">
+          {isSuperUser && (
+            <button
+              onClick={handleExportCSV}
+              className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
+            >
+              📄 Export CSV
+            </button>
+          )}
           <button
             onClick={() => navigate('/create')}
             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
@@ -79,7 +117,7 @@ const BugList: React.FC = () => {
       <h2 className="text-2xl font-bold mb-4">🐞 Bug List</h2>
       <ul className="space-y-4">
         {bugs.map((bug) => (
-          <li key={bug.id} className="border p-4 rounded-lg shadow-md">
+          <li key={bug.id} className="border p-4 rounded-lg shadow-md bg-white">
             <h3 className="text-lg font-semibold">{bug.title}</h3>
             <p className="text-sm text-gray-600 mb-2">{bug.description}</p>
             <p className="text-sm"><strong>Status:</strong> {bug.status}</p>
@@ -99,6 +137,23 @@ const BugList: React.FC = () => {
                 >
                   🗑️ Delete
                 </button>
+              </div>
+            )}
+
+            <div className="mt-3">
+              <button
+                onClick={() =>
+                  setOpenCommentId(openCommentId === bug.id ? null : bug.id)
+                }
+                className="text-sm text-indigo-600 hover:underline"
+              >
+                💬 {openCommentId === bug.id ? 'Hide Comments' : 'Add/View Comments'}
+              </button>
+            </div>
+
+            {openCommentId === bug.id && (
+              <div className="mt-4">
+                <CommentSection bugId={bug.id} />
               </div>
             )}
           </li>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchBugById, createBug } from '../api/bugService';
+import { fetchBugById } from '../api/bugService';
+import CommentSection from '../components/CommentSection';
 
 const BugDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -11,6 +12,9 @@ const BugDetail: React.FC = () => {
     description: '',
     status: '',
   });
+  const [loading, setLoading] = useState(true);
+
+  const API_BASE = 'http://127.0.0.1:8000/api/bugs';
 
   useEffect(() => {
     const getBug = async () => {
@@ -24,6 +28,9 @@ const BugDetail: React.FC = () => {
         });
       } catch (err) {
         console.error('Error fetching bug:', err);
+        alert("Failed to load bug details.");
+      } finally {
+        setLoading(false);
       }
     };
     getBug();
@@ -35,41 +42,60 @@ const BugDetail: React.FC = () => {
 
   const handleUpdate = async () => {
     try {
-      await fetch(`http://127.0.0.1:8000/api/bugs/${id}/`, {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error("No token found");
+
+      const response = await fetch(`${API_BASE}/${id}/`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Token ${localStorage.getItem('token')}`,
+          Authorization: `Token ${token}`,
         },
-        body: JSON.stringify({ ...formData, created_by: bug.created_by }),
+        body: JSON.stringify(formData),
       });
-      alert('Bug updated successfully!');
-      navigate('/');
+
+      if (!response.ok) throw new Error("Update failed");
+
+      alert('✅ Bug updated successfully!');
+      navigate('/bugs');
     } catch (err) {
-      console.error('Error updating bug:', err);
+      console.error('❌ Error updating bug:', err);
+      alert("Failed to update bug.");
     }
   };
 
   const handleDelete = async () => {
     try {
-      await fetch(`http://127.0.0.1:8000/api/bugs/${id}/`, {
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error("No token found");
+
+      const confirm = window.confirm("Are you sure you want to delete this bug?");
+      if (!confirm) return;
+
+      const response = await fetch(`${API_BASE}/${id}/`, {
         method: 'DELETE',
         headers: {
-          Authorization: `Token ${localStorage.getItem('token')}`,
+          Authorization: `Token ${token}`,
         },
       });
-      alert('Bug deleted!');
-      navigate('/');
+
+      if (!response.ok) throw new Error("Delete failed");
+
+      alert('🗑️ Bug deleted successfully!');
+      navigate('/bugs');
     } catch (err) {
-      console.error('Error deleting bug:', err);
+      console.error('❌ Error deleting bug:', err);
+      alert("Failed to delete bug.");
     }
   };
 
-  if (!bug) return <p>Loading bug details...</p>;
+  if (loading) return <p className="text-center mt-10">Loading bug details...</p>;
+  if (!bug) return <p className="text-center mt-10 text-red-600">Bug not found.</p>;
 
   return (
-    <div className="max-w-2xl mx-auto p-4 bg-white rounded-lg shadow">
-      <h2 className="text-xl font-bold mb-4">Bug Detail</h2>
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow">
+      <h2 className="text-2xl font-bold mb-6">🐞 Bug Detail</h2>
+
       <label className="block mb-2 font-semibold">Title:</label>
       <input
         name="title"
@@ -100,13 +126,17 @@ const BugDetail: React.FC = () => {
       </select>
 
       <div className="flex justify-between">
-        <button onClick={handleUpdate} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-          Save
+        <button onClick={handleUpdate} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          💾 Save
         </button>
-        <button onClick={handleDelete} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-          Delete
+        <button onClick={handleDelete} className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+          🗑️ Delete
         </button>
       </div>
+
+      <hr className="my-6" />
+
+      <CommentSection bugId={Number(id)} />
     </div>
   );
 };
