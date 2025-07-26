@@ -3,6 +3,7 @@ import BugList from './pages/BugListPage';
 import BugDetail from './pages/BugDetailPage';
 import Login from './pages/LoginPage';
 import Signup from './pages/Signup';
+import CreateBug from './pages/CreateBug';
 
 const App = () => {
   const isAuthenticated = !!localStorage.getItem('token');
@@ -15,6 +16,8 @@ const App = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/bugs" element={isAuthenticated ? <BugList /> : <Navigate to="/login" />} />
         <Route path="/bugs/:id" element={isAuthenticated ? <BugDetail /> : <Navigate to="/login" />} />
+        <Route path="/create" element={<CreateBug />} />
+
       </Routes>
     </Router>
   );
