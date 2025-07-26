@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { loginUser } from '../api/bugService';
 import { useNavigate, Link } from 'react-router-dom'; // ⬅️ Make sure to import Link
+import axios from 'axios';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
@@ -15,13 +16,35 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await loginUser(credentials);
-      localStorage.setItem('token', response.data.token);
+      const token = response.data.token;
+      localStorage.setItem('token', token);
       localStorage.setItem('username', credentials.username);
+
+      const userResponse = await axios.get('http://127.0.0.1:8000/api/user/', {
+        headers: { Authorization: `Token ${token}` },
+      });
+
+      console.log("User response:", userResponse.data); // 👀 Log for debug
+
+      const { id, username, is_superuser } = userResponse.data;
+
+      if (id && username !== undefined && is_superuser !== undefined) {
+        localStorage.setItem('user_id', id.toString());
+        localStorage.setItem('username', username);
+        localStorage.setItem('is_superuser', is_superuser.toString());
+      } else {
+        console.error("❌ Missing user fields in API response");
+        alert("Something went wrong while fetching user info.");
+        return;
+      }
+
       navigate('/bugs');
-    } catch (err) {
-      setError('Invalid username or password');
+    } catch (error) {
+      console.error("Login failed:", error);
+      alert("Login failed. Please check your credentials.");
     }
   };
+
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">

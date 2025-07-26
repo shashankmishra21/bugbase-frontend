@@ -18,4 +18,6 @@ export const fetchBugById = (id: number) => API.get(`bugs/${id}/`);
 export const createBug = (bugData: any) => API.post('bugs/', bugData);
 export const loginUser = (credentials: any) => API.post('login/', credentials);
 export const registerUser = (userData: any) => API.post('register/', userData);
+export const deleteBug = (id: number) => API.delete(`bugs/${id}/`);
+
 

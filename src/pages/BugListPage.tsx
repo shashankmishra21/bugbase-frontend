@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchBugs } from '../api/bugService';
+import { fetchBugs, deleteBug } from '../api/bugService';
 
 interface Bug {
   id: number;
@@ -9,20 +9,30 @@ interface Bug {
   status: string;
   ai_suggestion: string;
   created_at: string;
+  created_by: number;
 }
 
 const BugList: React.FC = () => {
   const [bugs, setBugs] = useState<Bug[]>([]);
+  const [userId, setUserId] = useState<number | null>(null);
+  const [isSuperUser, setIsSuperUser] = useState(false);
   const [username, setUsername] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Optional: get username from localStorage or from backend (if available)
+    const storedId = localStorage.getItem('user_id');
+    const superFlag = localStorage.getItem('is_superuser');
     const storedUsername = localStorage.getItem('username');
+
+    if (storedId) setUserId(parseInt(storedId));
+    if (superFlag) setIsSuperUser(superFlag === 'true');
     if (storedUsername) setUsername(storedUsername);
 
     fetchBugs()
-      .then((res) => setBugs(res.data))
+      .then((res) => {
+        console.log("Fetched bugs:", res.data);
+        setBugs(res.data);
+      })
       .catch((err) => {
         console.error("❌ Failed to fetch bugs:", err);
         alert("Failed to fetch bugs");
@@ -30,9 +40,20 @@ const BugList: React.FC = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
+    localStorage.clear();
     navigate('/login');
+  };
+
+  const handleDelete = async (bugId: number) => {
+    if (!window.confirm('Are you sure you want to delete this bug?')) return;
+    try {
+      await deleteBug(bugId);
+      setBugs((prev) => prev.filter((bug) => bug.id !== bugId));
+      alert('Bug deleted!');
+    } catch (err) {
+      console.error("❌ Failed to delete bug:", err);
+      alert("You don't have permission to delete this bug.");
+    }
   };
 
   return (
@@ -63,6 +84,23 @@ const BugList: React.FC = () => {
             <p className="text-sm text-gray-600 mb-2">{bug.description}</p>
             <p className="text-sm"><strong>Status:</strong> {bug.status}</p>
             <p className="text-sm"><strong>AI Suggestion:</strong> {bug.ai_suggestion}</p>
+
+            {(userId !== null && (bug.created_by === userId || isSuperUser)) && (
+              <div className="flex gap-3 mt-3">
+                <button
+                  onClick={() => navigate(`/bugs/${bug.id}`)}
+                  className="text-blue-600 hover:underline"
+                >
+                  ✏️ Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(bug.id)}
+                  className="text-red-600 hover:underline"
+                >
+                  🗑️ Delete
+                </button>
+              </div>
+            )}
           </li>
         ))}
       </ul>
