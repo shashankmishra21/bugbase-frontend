@@ -1,3 +1,5 @@
+// src/pages/Login.tsx
+
 import { useState } from 'react';
 import { loginUser } from '../api/bugService';
 import { useNavigate, Link } from 'react-router-dom';
@@ -14,44 +16,40 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // ✅ Log the credentials you're about to send
-    console.log("🧪 Sending credentials:", credentials);
+    setError('');
 
     try {
       const response = await loginUser(credentials);
       const token = response.data.token;
+
+      // Store token and username
       localStorage.setItem('token', token);
       localStorage.setItem('username', credentials.username);
 
+      // Fetch user info
       const userResponse = await axios.get(`${process.env.REACT_APP_API_URL}/user/`, {
         headers: { Authorization: `Token ${token}` },
       });
 
-      console.log("✅ User response:", userResponse.data);
-
       const { id, username, is_superuser } = userResponse.data;
 
-      if (id && username !== undefined && is_superuser !== undefined) {
-        localStorage.setItem('user_id', id.toString());
-        localStorage.setItem('username', username);
-        localStorage.setItem('is_superuser', is_superuser.toString());
-      } else {
-        console.error("❌ Missing user fields in API response");
-        alert("Something went wrong while fetching user info.");
-        return;
-      }
+      // Store extra user info
+      localStorage.setItem('user_id', id.toString());
+      localStorage.setItem('is_superuser', is_superuser.toString());
 
       navigate('/bugs');
-    } catch (error) {
-      console.error("❌ Login failed:", error);
-      alert("Login failed. Please check your credentials.");
+    } catch (error: any) {
+      console.error('❌ Login failed:', error);
+      setError('Login failed. Please check your username and password.');
     }
   };
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-8 rounded-lg shadow-md w-full max-w-md"
+      >
         <h2 className="text-2xl font-bold mb-6 text-center">Login to BugBase</h2>
 
         {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
