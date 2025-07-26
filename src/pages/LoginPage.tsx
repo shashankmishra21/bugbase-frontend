@@ -20,7 +20,7 @@ const Login = () => {
       localStorage.setItem('token', token);
       localStorage.setItem('username', credentials.username);
 
-      const userResponse = await axios.get('http://127.0.0.1:8000/api/user/', {
+      const userResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/`, {
         headers: { Authorization: `Token ${token}` },
       });
 

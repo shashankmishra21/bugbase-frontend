@@ -24,7 +24,7 @@ const CommentSection: React.FC<Props> = ({ bugId }) => {
   const fetchComments = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`http://127.0.0.1:8000/api/comments/?bug=${bugId}`, {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/comments/?bug=${bugId}`, {
         headers: { Authorization: `Token ${token}` },
       });
       setComments(res.data);
@@ -41,7 +41,7 @@ const CommentSection: React.FC<Props> = ({ bugId }) => {
     try {
       setSubmitting(true);
       await axios.post(
-        `http://127.0.0.1:8000/api/comments/`,
+        `${process.env.NEXT_PUBLIC_API_URL}/comments/`,
         { bug: bugId, text },
         { headers: { Authorization: `Token ${token}` } }
       );
