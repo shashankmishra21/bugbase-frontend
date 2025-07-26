@@ -14,7 +14,7 @@ const BugDetail: React.FC = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  const API_BASE = `${process.env.NEXT_PUBLIC_API_URL}/bugs`;
+  const API_BASE = `${process.env.REACT_APP_API_URL}/bugs`;
 
   useEffect(() => {
     const getBug = async () => {

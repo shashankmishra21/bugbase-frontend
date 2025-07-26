@@ -24,7 +24,7 @@ const CommentSection: React.FC<Props> = ({ bugId }) => {
   const fetchComments = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/comments/?bug=${bugId}`, {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/comments/?bug=${bugId}`, {
         headers: { Authorization: `Token ${token}` },
       });
       setComments(res.data);

@@ -20,7 +20,7 @@ const Login = () => {
       localStorage.setItem('token', token);
       localStorage.setItem('username', credentials.username);
 
-      const userResponse = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user/`, {
+      const userResponse = await axios.get(`${process.env.REACT_APP_API_URL}/user/`, {
         headers: { Authorization: `Token ${token}` },
       });
 

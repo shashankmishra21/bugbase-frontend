@@ -18,7 +18,7 @@ const Signup = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/register/`, formData);
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/register/`, formData);
       if (response.status === 201) {
         alert("Signup successful! Please login.");
         navigate("/login");
