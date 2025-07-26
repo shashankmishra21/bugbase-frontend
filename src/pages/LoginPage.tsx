@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { loginUser } from '../api/bugService';
-import { useNavigate, Link } from 'react-router-dom'; // ⬅️ Make sure to import Link
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 
 const Login = () => {
@@ -14,6 +14,10 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // ✅ Log the credentials you're about to send
+    console.log("🧪 Sending credentials:", credentials);
+
     try {
       const response = await loginUser(credentials);
       const token = response.data.token;
@@ -24,7 +28,7 @@ const Login = () => {
         headers: { Authorization: `Token ${token}` },
       });
 
-      console.log("User response:", userResponse.data); // 👀 Log for debug
+      console.log("✅ User response:", userResponse.data);
 
       const { id, username, is_superuser } = userResponse.data;
 
@@ -40,11 +44,10 @@ const Login = () => {
 
       navigate('/bugs');
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error("❌ Login failed:", error);
       alert("Login failed. Please check your credentials.");
     }
   };
-
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
