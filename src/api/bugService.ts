@@ -2,19 +2,20 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api/', // Your Django backend API URL
+  baseURL: 'http://127.0.0.1:8000/api/',
 });
 
-// Add auth token to every request if available
-API.interceptors.request.use((req) => {
+API.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
-  if (token) {
-    req.headers.Authorization = `Token ${token}`;
+  if (token && config.headers) {
+    config.headers.Authorization = `Token ${token}`;
   }
-  return req;
-}); 
+  return config;
+});
 
 export const fetchBugs = () => API.get('bugs/');
 export const fetchBugById = (id: number) => API.get(`bugs/${id}/`);
 export const createBug = (bugData: any) => API.post('bugs/', bugData);
 export const loginUser = (credentials: any) => API.post('login/', credentials);
+export const registerUser = (userData: any) => API.post('register/', userData);
+

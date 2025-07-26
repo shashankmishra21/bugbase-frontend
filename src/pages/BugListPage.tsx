@@ -14,14 +14,14 @@ const BugList: React.FC = () => {
   const [bugs, setBugs] = useState<Bug[]>([]);
 
   useEffect(() => {
-    fetchBugs()
-      .then((res) => {
-        setBugs(res.data);
-      })
-      .catch((err) => {
-        console.error('Error fetching bugs:', err);
-      });
-  }, []);
+  fetchBugs()
+    .then((res) => setBugs(res.data))
+    .catch((err) => {
+      console.error("❌ Failed to fetch bugs:", err);
+      alert("Failed to fetch bugs");
+    });
+}, []);
+
 
   return (
     <div className="p-6">
