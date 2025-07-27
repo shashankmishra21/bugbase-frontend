@@ -13,6 +13,8 @@ interface Props {
   bugId: number;
 }
 
+const baseURL = 'https://bugbase-backend.onrender.com/api';
+
 const CommentSection: React.FC<Props> = ({ bugId }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [text, setText] = useState('');
@@ -42,10 +44,10 @@ const CommentSection: React.FC<Props> = ({ bugId }) => {
       setSubmitting(true);
 
       // Debug log  check what URL it's POSTing to
-      console.log("POSTing to:", `${process.env.REACT_APP_API_URL}/comments/`);
+      console.log("POSTing to:", `${baseURL}/comments/`);
 
       await axios.post(
-        `https://bugbase-backend.onrender.com/api/comments/`,
+        `${baseURL}/comments/`,
         { bug: bugId, text },
         {
           headers: {
