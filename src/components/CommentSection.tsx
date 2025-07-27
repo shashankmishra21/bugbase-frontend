@@ -41,7 +41,7 @@ const CommentSection: React.FC<Props> = ({ bugId }) => {
     try {
       setSubmitting(true);
       await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/comments/`,
+        `${process.env.REACT_APP_API_URL}/comments/`,
         { bug: bugId, text },
         { headers: { Authorization: `Token ${token}` } }
       );
