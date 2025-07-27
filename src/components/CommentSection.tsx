@@ -45,7 +45,7 @@ const CommentSection: React.FC<Props> = ({ bugId }) => {
       console.log("POSTing to:", `${process.env.REACT_APP_API_URL}/comments/`);
 
       await axios.post(
-        `${process.env.REACT_APP_API_URL}/comments/`,
+        `https://bugbase-backend.onrender.com/api/comments/`,
         { bug: bugId, text },
         {
           headers: {
