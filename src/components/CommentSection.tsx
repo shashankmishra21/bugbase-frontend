@@ -40,11 +40,16 @@ const CommentSection: React.FC<Props> = ({ bugId }) => {
 
     try {
       setSubmitting(true);
+
+      // 🧪 Debug log — check what URL it's POSTing to
+      console.log("POSTing to:", `${process.env.REACT_APP_API_URL}/comments/`);
+
       await axios.post(
         `${process.env.REACT_APP_API_URL}/comments/`,
         { bug: bugId, text },
         { headers: { Authorization: `Token ${token}` } }
       );
+
       setText('');
       await fetchComments();
     } catch (err) {
