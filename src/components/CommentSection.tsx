@@ -43,9 +43,6 @@ const CommentSection: React.FC<Props> = ({ bugId }) => {
     try {
       setSubmitting(true);
 
-      // Debug log  check what URL it's POSTing to
-      console.log("POSTing to:", `${baseURL}/comments/`);
-
       await axios.post(
         `${baseURL}/comments/`,
         { bug: bugId, text },
